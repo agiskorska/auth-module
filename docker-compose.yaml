@@ -1,0 +1,37 @@
+version: '3'
+services:
+  api:
+    image: node:12.18.4
+    working_dir: /code
+    container_name: auth_api
+    ports: 
+      - 3000:3000
+    environment: 
+      - PGUSER=agiskorska
+      - PGHOST=db
+      - PGPASSWORD=ladybird12345
+      - PGDATABASE=library
+      - PGPORT=5432
+      - NODE_ENV=development
+    depends_on:
+      - db
+    command: bash -c "npm install && npm run dev"
+    volumes:
+      - type: bind
+        source: ./api
+        target: /code
+  db: 
+    image: postgres:12.4
+    volumes: 
+      - "./db/migrations:/docker-entrypoint-initdb.d/:ro"
+      - "authdb:/var/lib/postgresql/data"
+    container_name: auth_db
+    environment: 
+      - POSTGRES_USER=agiskorska
+      - POSTGRES_DB=library
+      - POSTGRES_PASSWORD=ladybird12345
+volumes:
+  authdb:
+networks: 
+  default:
+    name: auth_api
